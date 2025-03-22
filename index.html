@@ -1,1 +1,51 @@
-<p>hitt<p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Files</title>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Cek apakah browser mendukung Fetch API
+            if (!window.fetch) {
+                document.body.innerHTML = "<p>Browser tidak mendukung Fetch API.</p>";
+                return;
+            }
+
+            // Ambil daftar file dari server
+            fetch(".")
+                .then(response => response.text())
+                .then(text => {
+                    let parser = new DOMParser();
+                    let doc = parser.parseFromString(text, "text/html");
+                    let links = doc.querySelectorAll("a[href]");
+
+                    let fileList = document.getElementById("file-list");
+                    links.forEach(link => {
+                        let fileName = link.getAttribute("href");
+                        if (!fileName.endsWith("/")) { // Hindari folder
+                            let listItem = document.createElement("li");
+                            let downloadLink = document.createElement("a");
+
+                            downloadLink.href = fileName;
+                            downloadLink.download = fileName; // Paksa download
+                            downloadLink.textContent = "Download " + fileName;
+
+                            listItem.appendChild(downloadLink);
+                            fileList.appendChild(listItem);
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching file list:", error);
+                });
+        });
+    </script>
+</head>
+<body>
+    <h2>Download Files</h2>
+    <ul id="file-list">
+        <p>Memuat daftar file...</p>
+    </ul>
+</body>
+</html>
